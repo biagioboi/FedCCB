@@ -57,6 +57,7 @@ def ensure_run_materialized(row: dict, run_dir: Path) -> None:
     attack = config["attack"]
     defaults = config["defaults"]
     malicious_clients = ",".join(str(client) for client in attack["malicious_clients"])
+    client_parallelism = defaults.get("client_parallelism", 0)
     run_script = run_dir / "run.sh"
     run_script.write_text(
         '#!/usr/bin/env bash\n'
@@ -74,6 +75,7 @@ def ensure_run_materialized(row: dict, run_dir: Path) -> None:
         f'  --server-fraction "{defaults["server_data_fraction"]}" \\\n'
         f'  --batch-size "{defaults["batch_size"]}" \\\n'
         f'  --local-epochs "{defaults["local_epochs"]}" \\\n'
+        f'  --client-parallelism "{client_parallelism}" \\\n'
         f'  --seed "{defaults["seed"]}" \\\n'
         f'  --label-swap-fraction "{attack["label_swap_fraction"]}" \\\n'
         f'  --malicious-probability "{attack["malicious_activation_probability"]}" \\\n'

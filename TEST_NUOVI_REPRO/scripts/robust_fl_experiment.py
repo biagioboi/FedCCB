@@ -4,6 +4,7 @@ import csv
 import json
 import math
 import random
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -218,6 +219,20 @@ def train_local(model, loader, epochs, lr, device):
             loss.backward()
             opt.step()
     return {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+
+
+def train_clients(model_factory, global_state, client_loaders, epochs, lr, device, client_parallelism):
+    def train_one(loader):
+        model = model_factory().to(device)
+        model.load_state_dict(global_state, strict=True)
+        return train_local(model, loader, epochs, lr, device)
+
+    if client_parallelism == 1 or len(client_loaders) <= 1:
+        return [train_one(loader) for loader in client_loaders]
+
+    max_workers = len(client_loaders) if client_parallelism <= 0 else min(client_parallelism, len(client_loaders))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        return list(executor.map(train_one, client_loaders))
 
 
 def evaluate(model, loader, device):
@@ -571,6 +586,7 @@ def main():
     parser.add_argument('--no-download', action='store_true', help='Disabilita il download automatico e usa solo dataset gia presenti in cache.')
     parser.add_argument('--output-dir', required=True)
     parser.add_argument('--num-workers', type=int, default=2)
+    parser.add_argument('--client-parallelism', type=int, default=0, help='Numero di client da addestrare in parallelo; 0 usa tutti i client.')
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     args = parser.parse_args()
 
@@ -592,12 +608,16 @@ def main():
     metrics = []
 
     for round_idx in range(1, args.num_rounds + 1):
-        local_states = []
-        for loader in client_loaders:
-            model = model_factory().to(device)
-            model.load_state_dict(global_state, strict=True)
-            epochs = 1 if args.method == 'fedsgd' else args.local_epochs
-            local_states.append(train_local(model, loader, epochs, args.lr, device))
+        epochs = 1 if args.method == 'fedsgd' else args.local_epochs
+        local_states = train_clients(
+            model_factory,
+            global_state,
+            client_loaders,
+            epochs,
+            args.lr,
+            device,
+            args.client_parallelism,
+        )
 
         server_model = model_factory().to(device)
         server_model.load_state_dict(global_state, strict=True)

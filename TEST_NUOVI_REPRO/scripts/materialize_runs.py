@@ -23,6 +23,7 @@ def write_launcher(run_dir: Path, config: dict) -> None:
     defaults = config['defaults']
     attack = config['attack']
     malicious_clients = ','.join(str(client) for client in attack['malicious_clients'])
+    client_parallelism = defaults.get('client_parallelism', 0)
     launcher = run_dir / 'run.sh'
     launcher.write_text(
         '#!/usr/bin/env bash\n'
@@ -40,6 +41,7 @@ def write_launcher(run_dir: Path, config: dict) -> None:
         f'  --server-fraction "{defaults["server_data_fraction"]}" \\\n'
         f'  --batch-size "{defaults["batch_size"]}" \\\n'
         f'  --local-epochs "{defaults["local_epochs"]}" \\\n'
+        f'  --client-parallelism "{client_parallelism}" \\\n'
         f'  --seed "{defaults["seed"]}" \\\n'
         f'  --label-swap-fraction "{attack["label_swap_fraction"]}" \\\n'
         f'  --malicious-probability "{attack["malicious_activation_probability"]}" \\\n'

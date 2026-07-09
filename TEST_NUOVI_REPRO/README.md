@@ -82,6 +82,10 @@ Metodi disponibili:
 
 Tutti i dataset della matrice sono ora eseguibili: `cifar10`, `cifar100`, `svhn`, `fashionmnist`.
 
+## Parallelismo client
+
+Le run addestrano i client in parallelo tramite `--client-parallelism 0`, dove `0` significa usare tutti i client della run. Per tornare al comportamento seriale e ridurre il picco di memoria GPU, passa `--client-parallelism 1`.
+
 ## Stato operativo
 
 - `run_manifest.csv` contiene 360 run `ready`.

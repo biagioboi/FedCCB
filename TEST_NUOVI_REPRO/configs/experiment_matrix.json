@@ -9,6 +9,7 @@
     "batch_size": 32,
     "num_rounds": 50,
     "local_epochs": 20,
+    "client_parallelism": 0,
     "seed": 42,
     "resume_from_checkpoint": false
   },
