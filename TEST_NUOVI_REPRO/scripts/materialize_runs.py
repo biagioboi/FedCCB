@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RUNNER = ROOT / 'scripts' / 'robust_fl_experiment.py'
+RUNNER_REL = Path('TEST_NUOVI_REPRO') / 'scripts' / 'robust_fl_experiment.py'
 
 
 def load_matrix(config_path: Path) -> dict:
@@ -27,8 +27,10 @@ def write_launcher(run_dir: Path, config: dict) -> None:
     launcher.write_text(
         '#!/usr/bin/env bash\n'
         'set -euo pipefail\n'
-        'cd "$(dirname "$0")"\n'
-        f'python "{RUNNER}" \\\n'
+        'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"\n'
+        'REPRO_ROOT="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"\n'
+        'cd "$SCRIPT_DIR"\n'
+        'python "$REPRO_ROOT/scripts/robust_fl_experiment.py" \\\n'
         f'  --dataset "{config["dataset"]["name"]}" \\\n'
         f'  --method "{config["method"]["name"]}" \\\n'
         f'  --alpha "{config["alpha"]}" \\\n'
@@ -47,7 +49,6 @@ def write_launcher(run_dir: Path, config: dict) -> None:
     )
     launcher.chmod(0o755)
 
-
 def materialize(config_path: Path, dry_run: bool) -> list[dict]:
     matrix = load_matrix(config_path)
     output_root = ROOT / matrix['output_root']
@@ -61,6 +62,7 @@ def materialize(config_path: Path, dry_run: bool) -> list[dict]:
                     seed = defaults['seed']
                     exp_id = experiment_id(dataset['name'], alpha, attack['name'], method['name'], seed)
                     run_dir = output_root / dataset['name'] / f"alpha_{str(alpha).replace('.', 'p')}" / attack['name'] / method['name'] / f'seed_{seed}'
+                    run_dir_rel = Path('TEST_NUOVI_REPRO') / matrix['output_root'] / dataset['name'] / f"alpha_{str(alpha).replace('.', 'p')}" / attack['name'] / method['name'] / f'seed_{seed}'
                     config = {
                         'experiment_id': exp_id,
                         'dataset': dataset,
@@ -68,7 +70,7 @@ def materialize(config_path: Path, dry_run: bool) -> list[dict]:
                         'attack': attack,
                         'method': method,
                         'defaults': defaults,
-                        'runner': str(RUNNER),
+                        'runner': str(RUNNER_REL),
                         'status': 'ready',
                     }
                     if not dry_run:
@@ -82,8 +84,8 @@ def materialize(config_path: Path, dry_run: bool) -> list[dict]:
                         'attack': attack['name'],
                         'method': method['name'],
                         'status': 'ready',
-                        'run_dir': str(run_dir),
-                        'runner': str(RUNNER),
+                        'run_dir': str(run_dir_rel),
+                        'runner': str(RUNNER_REL),
                         'reason': '',
                     })
     return rows
@@ -113,7 +115,7 @@ def main() -> None:
     counts = {}
     for row in rows:
         counts[row['status']] = counts.get(row['status'], 0) + 1
-    print(json.dumps({'total': len(rows), 'counts': counts, 'manifest': str(manifest_path)}, indent=2))
+    print(json.dumps({'total': len(rows), 'counts': counts, 'manifest': str(Path('TEST_NUOVI_REPRO') / matrix['manifest_path'])}, indent=2))
 
 
 if __name__ == '__main__':

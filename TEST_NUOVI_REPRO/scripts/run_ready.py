@@ -11,6 +11,13 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "run_manifest.csv"
 
 
+def resolve_repo_path(path_text: str) -> Path:
+    path = Path(path_text)
+    if path.is_absolute():
+        return path
+    return ROOT.parent / path
+
+
 def load_ready_rows(manifest_path: Path, dataset: str | None, alpha: str | None, attack: str | None, method: str | None) -> list[dict]:
     with manifest_path.open(newline="", encoding="utf-8") as handle:
         rows = [row for row in csv.DictReader(handle) if row["status"] == "ready"]
@@ -26,7 +33,7 @@ def load_ready_rows(manifest_path: Path, dataset: str | None, alpha: str | None,
 
 
 def run_one(row: dict, slot: int, gpus: list[str] | None) -> tuple[dict, int, Path]:
-    run_dir = Path(row["run_dir"])
+    run_dir = resolve_repo_path(row["run_dir"])
     run_script = run_dir / "run.sh"
     log_path = run_dir / "runner.log"
     env = os.environ.copy()
