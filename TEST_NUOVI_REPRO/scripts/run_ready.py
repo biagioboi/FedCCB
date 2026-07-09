@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import csv
+import json
 import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -9,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "run_manifest.csv"
+MATRIX = ROOT / "configs" / "experiment_matrix.json"
 
 
 def resolve_repo_path(path_text: str) -> Path:
@@ -17,6 +19,69 @@ def resolve_repo_path(path_text: str) -> Path:
         return path
     return ROOT.parent / path
 
+
+
+def load_matrix() -> dict:
+    with MATRIX.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def alpha_dir(alpha: str) -> str:
+    return f"alpha_{str(alpha).replace('.', 'p')}"
+
+
+def find_config_entry(row: dict) -> dict:
+    matrix = load_matrix()
+    defaults = matrix["defaults"]
+    dataset = next(item for item in matrix["datasets"] if item["name"] == row["dataset"])
+    attack = next(item for item in matrix["attack_intensities"] if item["name"] == row["attack"])
+    method = next(item for item in matrix["methods"] if item["name"] == row["method"])
+    return {
+        "experiment_id": row["experiment_id"],
+        "dataset": dataset,
+        "alpha": float(row["alpha"]),
+        "attack": attack,
+        "method": method,
+        "defaults": defaults,
+        "runner": "TEST_NUOVI_REPRO/scripts/robust_fl_experiment.py",
+        "status": "ready",
+    }
+
+
+def ensure_run_materialized(row: dict, run_dir: Path) -> None:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    config = find_config_entry(row)
+    config_path = run_dir / "config.json"
+    config_path.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    attack = config["attack"]
+    defaults = config["defaults"]
+    malicious_clients = ",".join(str(client) for client in attack["malicious_clients"])
+    run_script = run_dir / "run.sh"
+    run_script.write_text(
+        '#!/usr/bin/env bash\n'
+        'set -euo pipefail\n'
+        'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"\n'
+        'REPRO_ROOT="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"\n'
+        'cd "$SCRIPT_DIR"\n'
+        'python "$REPRO_ROOT/scripts/robust_fl_experiment.py" \\\n'
+        f'  --dataset "{config["dataset"]["name"]}" \\\n'
+        f'  --method "{config["method"]["name"]}" \\\n'
+        f'  --alpha "{config["alpha"]}" \\\n'
+        f'  --attack "{attack["name"]}" \\\n'
+        f'  --num-rounds "{defaults["num_rounds"]}" \\\n'
+        f'  --num-clients "{defaults["num_clients"]}" \\\n'
+        f'  --server-fraction "{defaults["server_data_fraction"]}" \\\n'
+        f'  --batch-size "{defaults["batch_size"]}" \\\n'
+        f'  --local-epochs "{defaults["local_epochs"]}" \\\n'
+        f'  --seed "{defaults["seed"]}" \\\n'
+        f'  --label-swap-fraction "{attack["label_swap_fraction"]}" \\\n'
+        f'  --malicious-probability "{attack["malicious_activation_probability"]}" \\\n'
+        f'  --malicious-clients "{malicious_clients}" \\\n'
+        '  --output-dir "results"\n',
+        encoding="utf-8",
+    )
+    run_script.chmod(0o755)
 
 def load_ready_rows(manifest_path: Path, dataset: str | None, alpha: str | None, attack: str | None, method: str | None) -> list[dict]:
     with manifest_path.open(newline="", encoding="utf-8") as handle:
@@ -34,6 +99,7 @@ def load_ready_rows(manifest_path: Path, dataset: str | None, alpha: str | None,
 
 def run_one(row: dict, slot: int, gpus: list[str] | None) -> tuple[dict, int, Path]:
     run_dir = resolve_repo_path(row["run_dir"])
+    ensure_run_materialized(row, run_dir)
     run_script = run_dir / "run.sh"
     log_path = run_dir / "runner.log"
     env = os.environ.copy()
