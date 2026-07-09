@@ -1,0 +1,202 @@
+{
+  "project": "robust_federated_learning_journal",
+  "legacy_root": "../TEST_NUOVI",
+  "output_root": "runs",
+  "manifest_path": "run_manifest.csv",
+  "defaults": {
+    "num_clients": 25,
+    "server_data_fraction": 0.2,
+    "batch_size": 32,
+    "num_rounds": 50,
+    "local_epochs": 20,
+    "seed": 42,
+    "resume_from_checkpoint": false
+  },
+  "datasets": [
+    {
+      "name": "cifar10",
+      "num_classes": 10,
+      "channels": 3,
+      "image_size": 32,
+      "status": "generic_runnable"
+    },
+    {
+      "name": "cifar100",
+      "num_classes": 100,
+      "channels": 3,
+      "image_size": 32,
+      "status": "generic_runnable"
+    },
+    {
+      "name": "svhn",
+      "num_classes": 10,
+      "channels": 3,
+      "image_size": 32,
+      "status": "generic_runnable"
+    },
+    {
+      "name": "fashionmnist",
+      "num_classes": 10,
+      "channels": 1,
+      "image_size": 28,
+      "status": "generic_runnable"
+    }
+  ],
+  "non_iid_alphas": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "attack_intensities": [
+    {
+      "name": "basso",
+      "label_swap_fraction": 0.25,
+      "malicious_activation_probability": 0.5,
+      "malicious_clients": [
+        3,
+        7,
+        13,
+        15,
+        19,
+        23
+      ]
+    },
+    {
+      "name": "medio",
+      "label_swap_fraction": 0.5,
+      "malicious_activation_probability": 0.5,
+      "malicious_clients": [
+        1,
+        3,
+        6,
+        7,
+        9,
+        10,
+        13,
+        15,
+        12,
+        19,
+        20,
+        23
+      ]
+    },
+    {
+      "name": "alto",
+      "label_swap_fraction": 0.75,
+      "malicious_activation_probability": 0.5,
+      "malicious_clients": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        9,
+        10,
+        12,
+        13,
+        15,
+        17,
+        18,
+        19,
+        20,
+        21,
+        23,
+        24
+      ]
+    }
+  ],
+  "methods": [
+    {
+      "name": "proposed_confidence",
+      "legacy_aliases": [
+        "paper"
+      ],
+      "category": "proposed",
+      "status": "generic_runnable"
+    },
+    {
+      "name": "fedavg",
+      "legacy_aliases": [
+        "fedavg"
+      ],
+      "category": "classic_baseline",
+      "status": "generic_runnable"
+    },
+    {
+      "name": "fedsgd",
+      "legacy_aliases": [
+        "fedsgd"
+      ],
+      "category": "classic_baseline",
+      "status": "generic_runnable"
+    },
+    {
+      "name": "krum",
+      "legacy_aliases": [
+        "krum"
+      ],
+      "category": "robust_baseline",
+      "status": "generic_runnable"
+    },
+    {
+      "name": "trimmed_mean",
+      "legacy_aliases": [
+        "tm",
+        "trimmed_mean"
+      ],
+      "category": "robust_baseline",
+      "status": "generic_runnable"
+    },
+    {
+      "name": "fltrust",
+      "legacy_aliases": [
+        "fltrust"
+      ],
+      "category": "trusted_server_baseline",
+      "status": "generic_runnable"
+    },
+    {
+      "name": "clipped_clustering",
+      "legacy_aliases": [],
+      "category": "recent_baseline",
+      "status": "generic_runnable",
+      "reference": "Experimental Study of Byzantine-Robust Aggregation Schemes in Federated Learning, 2023"
+    },
+    {
+      "name": "rflpa",
+      "legacy_aliases": [],
+      "category": "recent_baseline",
+      "status": "generic_runnable",
+      "reference": "RFLPA, 2024"
+    },
+    {
+      "name": "adaaggrl",
+      "legacy_aliases": [],
+      "category": "recent_baseline",
+      "status": "generic_runnable",
+      "reference": "AdaAggRL, 2024"
+    },
+    {
+      "name": "fedgreed",
+      "legacy_aliases": [],
+      "category": "recent_baseline",
+      "status": "generic_runnable",
+      "reference": "FedGreed, 2025"
+    },
+    {
+      "name": "sherpa",
+      "legacy_aliases": [],
+      "category": "recent_baseline",
+      "status": "generic_runnable",
+      "reference": "SHERPA: Explainable Robust Algorithms for Privacy-Preserved Federated Learning in Future Networks to Defend Against Data Poisoning Attacks"
+    },
+    {
+      "name": "fedlad",
+      "legacy_aliases": [],
+      "category": "recent_baseline",
+      "status": "generic_runnable",
+      "reference": "FedLAD: A Linear Algebra Based Data Poisoning Defence for Federated Learning, 2025"
+    }
+  ]
+}

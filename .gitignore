@@ -1,0 +1,43 @@
+TEST_NUOVI_REPRO/data
+TEST_NUOVI/data
+dataset
+# Local datasets and generated experiment data
+/dataset/
+/datatest_test/
+/TEST_NUOVI/data/
+/TEST_NUOVI/datatest_test/
+/TEST_NUOVI_REPRO/data/
+/TEST_NUOVI_REPRO/runs/
+/TEST_NUOVI_REPRO/legacy_archive/
+
+# Generated legacy experiment outputs
+/notebook_results/
+/TEST_NUOVI/resultsagenti/
+/TEST_NUOVI/distribuzione */
+/TEST_NUOVI/*.zip
+
+# Training artifacts
+**/results/
+**/checkpoint*/
+**/checkpoints/
+**/logs/
+**/logs_*/
+**/matrici_confusione/
+**/runner.log
+**/metrics.csv
+**/args.json
+**/last_checkpoint.pt
+**/*.pth
+**/*.pt
+**/*.pth.tar
+
+# Notebook and Python cache
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Runtime output
+nohup.out
+*.log
