@@ -197,12 +197,19 @@ def make_loaders(train_ds, test_ds, args, num_classes: int):
     rng = random.Random(args.seed)
     client_loaders = []
     active_malicious = []
+    client_num_workers = args.num_workers
+    if args.num_workers > 0 and args.client_parallelism != 1:
+        client_num_workers = 0
+        print(
+            '[data] forcing client DataLoader num_workers=0 because threaded client training '
+            f'is enabled (client_parallelism={args.client_parallelism})'
+        )
     for client_id, indices in enumerate(client_indices):
         subset = Subset(train_ds, indices)
         if client_id in malicious and rng.random() < args.malicious_probability:
             subset = LabelSwapDataset(subset, label_map, args.label_swap_fraction, args.seed + client_id)
             active_malicious.append(client_id)
-        client_loaders.append(DataLoader(subset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers))
+        client_loaders.append(DataLoader(subset, batch_size=args.batch_size, shuffle=True, num_workers=client_num_workers))
     server_loader = DataLoader(Subset(train_ds, server_indices), batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     test_loader = DataLoader(test_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
     return client_loaders, server_loader, test_loader, active_malicious
