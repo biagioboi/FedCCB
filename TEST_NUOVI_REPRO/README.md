@@ -71,14 +71,15 @@ Metodi disponibili:
 
 - `proposed_confidence`: versione generalizzata del metodo a confidenza, con scoring su root dataset pulito e selezione tramite clustering dei punteggi.
 - `fedavg`, `fedsgd`: baseline federated classiche.
-- `krum`, `trimmed_mean`: baseline robuste classiche.
-- `fltrust`: aggregazione guidata da update pulito lato server.
-- `clipped_clustering`: clipping della norma degli update e clustering dei client prima dell'aggregazione.
-- `rflpa`: weighting robusto server-guided basato su similarita' dell'update client-server.
-- `adaaggrl`: aggregazione adattiva con fiducia server-guided e stabilita' storica del client.
-- `fedgreed`: selezione greedy dei client che migliorano la loss sul root dataset pulito.
-- `sherpa`: aggregazione robusta explainable con profilo di loss per classe su root dataset pulito, anomaly score per client e media pesata dei client non anomali.
-- `fedlad`: aggregazione linear-algebra-based che seleziona update non ridondanti/linearmente indipendenti e pesa i contributi selezionati in modo robusto.
+- `krum`: Blanchard et al., NeurIPS 2017. Sceglie l'update con distanza minima ai suoi `n-f-2` vicini piu' prossimi (`f` = numero assunto di client Byzantine, `--krum-f`, di default stimato dal numero di `--malicious-clients` configurati).
+- `trimmed_mean`: Yin et al., ICML 2018. Trimmed mean coordinata-per-coordinata.
+- `fltrust`: Cao et al., NDSS 2021. Trust score `ReLU(cos(g_i, g_0))` **dopo** aver normalizzato ogni update alla norma dell'update server (`g_i_bar = (||g_0||/||g_i||) * g_i`), poi media pesata dei `g_i_bar`.
+- `rflpa`: arXiv:2405.15182 (NeurIPS 2024). Stessa formula di trust bootstrapping di FLTrust (con secure aggregation nel paper originale, qui omessa perche' fuori scope simulativo).
+- `clipped_clustering`: arXiv:2302.07173. Clip della norma al **valore storico mediano** (non al mediano del solo round corrente), poi bipartizione dei client via clustering agglomerativo su similarita' coseno (Sattler et al., ICASSP 2020) mantenendo il cluster maggioritario.
+- `adaaggrl`: arXiv:2406.14217 (AAAI 2025). Ricostruzione della distribuzione dati di ogni client via gradient inversion, similarita' MMD (storia del client, distribuzione globale del round), policy TD3 che apprende i pesi delle 4 metriche + soglia di filtro, penalita' esponenziale `lambda^h` per client ripetutamente sospetti. NOTA: la gradient inversion del paper assume un singolo step di SGD; qui i client fanno piu' epoche locali, quindi l'update cumulativo e' usato come proxy del gradiente target (approssimazione necessaria). L'estrattore di feature "pre-addestrato" e' il backbone convoluzionale del modello globale corrente (nessuna rete pre-addestrata esterna e' disponibile in questa pipeline).
+- `fedgreed`: arXiv:2508.18060. Ordina i client una sola volta per loss individuale sul root dataset, poi testa i prefissi in quest'ordine fisso fermandosi al primo prefisso che non migliora la loss.
+- `sherpa`: IEEE S&P 2024. Identifica i poisoner via clustering delle attribuzioni SHAP (non tramite statistiche di loss): per ogni modello candidato calcola l'attribuzione media |SHAP value| per classe con un explainer a gradiente, bipartiziona i client su questi vettori e scarta il cluster minoritario.
+- `fedlad`: arXiv:2508.02136. Eliminazione di Gauss-Jordan con pivoting parziale (RREF) sulla matrice parametri x client per individuare le colonne (client) linearmente indipendenti, poi FedAvg non pesato sui soli client selezionati.
 
 Tutti i dataset della matrice sono ora eseguibili: `cifar10`, `cifar100`, `svhn`, `fashionmnist`.
 

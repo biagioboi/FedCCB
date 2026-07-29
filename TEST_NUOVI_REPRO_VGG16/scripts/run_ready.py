@@ -43,7 +43,7 @@ def find_config_entry(row: dict) -> dict:
         "attack": attack,
         "method": method,
         "defaults": defaults,
-        "runner": "TEST_NUOVI_REPRO/scripts/robust_fl_experiment.py",
+        "runner": "TEST_NUOVI_REPRO_VGG16/scripts/robust_fl_experiment.py",
         "status": "ready",
     }
 
@@ -129,7 +129,7 @@ def run_one(row: dict, slot: int, gpus: list[str] | None) -> tuple[dict, int, Pa
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Esegue le run ready elencate in TEST_NUOVI_REPRO/run_manifest.csv.")
+    parser = argparse.ArgumentParser(description="Esegue le run ready elencate in TEST_NUOVI_REPRO_VGG16/run_manifest.csv.")
     parser.add_argument("--dataset", default=None)
     parser.add_argument("--alpha", default=None, help="Esempio: 0.1, 0.5, 0.9")
     parser.add_argument("--attack", default=None, choices=[None, "basso", "medio", "alto"])
