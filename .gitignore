@@ -6,8 +6,8 @@ dataset
 /datatest_test/
 /TEST_NUOVI/data/
 /TEST_NUOVI/datatest_test/
-/TEST_NUOVI_REPRO/data/
-/TEST_NUOVI_REPRO/runs/
+#/TEST_NUOVI_REPRO/data/
+#/TEST_NUOVI_REPRO/runs/
 /TEST_NUOVI_REPRO/legacy_archive/
 /TEST_NUOVI_REPRO_VGG16/data
 /TEST_NUOVI_REPRO_VGG16/runs/

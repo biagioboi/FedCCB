@@ -1,0 +1,49 @@
+{
+  "experiment_id": "cifar100__alpha_0p5__medio__fedlad__seed_42",
+  "dataset": {
+    "name": "cifar100",
+    "num_classes": 100,
+    "channels": 3,
+    "image_size": 32,
+    "status": "generic_runnable"
+  },
+  "alpha": 0.5,
+  "attack": {
+    "name": "medio",
+    "label_swap_fraction": 0.5,
+    "malicious_activation_probability": 0.5,
+    "malicious_clients": [
+      1,
+      3,
+      6,
+      7,
+      9,
+      10,
+      13,
+      15,
+      12,
+      19,
+      20,
+      23
+    ]
+  },
+  "method": {
+    "name": "fedlad",
+    "legacy_aliases": [],
+    "category": "recent_baseline",
+    "status": "generic_runnable",
+    "reference": "FedLAD: A Linear Algebra Based Data Poisoning Defence for Federated Learning, 2025"
+  },
+  "defaults": {
+    "num_clients": 25,
+    "server_data_fraction": 0.2,
+    "batch_size": 32,
+    "num_rounds": 50,
+    "local_epochs": 20,
+    "client_parallelism": 0,
+    "seed": 42,
+    "resume_from_checkpoint": false
+  },
+  "runner": "TEST_NUOVI_REPRO/scripts/robust_fl_experiment.py",
+  "status": "ready"
+}

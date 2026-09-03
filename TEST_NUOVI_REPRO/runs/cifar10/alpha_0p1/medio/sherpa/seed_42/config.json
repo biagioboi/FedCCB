@@ -1,0 +1,49 @@
+{
+  "experiment_id": "cifar10__alpha_0p1__medio__sherpa__seed_42",
+  "dataset": {
+    "name": "cifar10",
+    "num_classes": 10,
+    "channels": 3,
+    "image_size": 32,
+    "status": "generic_runnable"
+  },
+  "alpha": 0.1,
+  "attack": {
+    "name": "medio",
+    "label_swap_fraction": 0.5,
+    "malicious_activation_probability": 0.5,
+    "malicious_clients": [
+      1,
+      3,
+      6,
+      7,
+      9,
+      10,
+      13,
+      15,
+      12,
+      19,
+      20,
+      23
+    ]
+  },
+  "method": {
+    "name": "sherpa",
+    "legacy_aliases": [],
+    "category": "recent_baseline",
+    "status": "generic_runnable",
+    "reference": "SHERPA: Explainable Robust Algorithms for Privacy-Preserved Federated Learning in Future Networks to Defend Against Data Poisoning Attacks"
+  },
+  "defaults": {
+    "num_clients": 25,
+    "server_data_fraction": 0.2,
+    "batch_size": 32,
+    "num_rounds": 50,
+    "local_epochs": 20,
+    "client_parallelism": 0,
+    "seed": 42,
+    "resume_from_checkpoint": false
+  },
+  "runner": "TEST_NUOVI_REPRO/scripts/robust_fl_experiment.py",
+  "status": "ready"
+}

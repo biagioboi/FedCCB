@@ -1,0 +1,43 @@
+{
+  "experiment_id": "cifar10__alpha_0p5__basso__clipped_clustering__seed_42",
+  "dataset": {
+    "name": "cifar10",
+    "num_classes": 10,
+    "channels": 3,
+    "image_size": 32,
+    "status": "generic_runnable"
+  },
+  "alpha": 0.5,
+  "attack": {
+    "name": "basso",
+    "label_swap_fraction": 0.25,
+    "malicious_activation_probability": 0.5,
+    "malicious_clients": [
+      3,
+      7,
+      13,
+      15,
+      19,
+      23
+    ]
+  },
+  "method": {
+    "name": "clipped_clustering",
+    "legacy_aliases": [],
+    "category": "recent_baseline",
+    "status": "generic_runnable",
+    "reference": "Experimental Study of Byzantine-Robust Aggregation Schemes in Federated Learning, 2023"
+  },
+  "defaults": {
+    "num_clients": 25,
+    "server_data_fraction": 0.2,
+    "batch_size": 32,
+    "num_rounds": 50,
+    "local_epochs": 20,
+    "client_parallelism": 0,
+    "seed": 42,
+    "resume_from_checkpoint": false
+  },
+  "runner": "TEST_NUOVI_REPRO/scripts/robust_fl_experiment.py",
+  "status": "ready"
+}
